@@ -1,1 +1,30 @@
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import StandardScaler
+from scipy import stats
+df = pd.read_csv('path_to_your_dataset.csv')
+# Dropping rows with missing values
+df_cleaned = df.dropna()
+
+# Filling missing values with the mean
+df_filled = df.fillna(df.mean())
+
+# Alternatively, fill with median or mode
+# df_filled = df.fillna(df.median())
+# df_filled = df.fillna(df.mode().iloc[0])
+z_scores = np.abs(stats.zscore(df.select_dtypes(include=[np.number])))
+df_no_outliers = df[(z_scores < 3).all(axis=1)]
+Q1 = df.quantile(0.25)
+Q3 = df.quantile(0.75)
+IQR = Q3 - Q1
+
+df_no_outliers = df[~((df < (Q1 - 1.5 * IQR)) | (df > (Q3 + 1.5 * IQR))).any(axis=1)]
+# Convert to a standard date format
+df['date_column'] = pd.to_datetime(df['date_column'], errors='coerce')
+# Convert categorical columns to lowercase and remove leading/trailing spaces
+df['categorical_column'] = df['categorical_column'].str.strip().str.lower()
+scaler = StandardScaler()
+df_scaled = pd.DataFrame(scaler.fit_transform(df.select_dtypes(include=[np.number])), columns=df.select_dtypes(include=[np.number]).columns)
+df_final = pd.concat([df_scaled, df.select_dtypes(exclude=[np.number])], axis=1)
+df_final.to_csv('cleaned_dataset.csv', index=False)
 
