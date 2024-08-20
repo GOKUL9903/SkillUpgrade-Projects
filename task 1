@@ -1,56 +1,41 @@
 import pandas as pd
 import numpy as np
 
-# Load the messy dataset
-file_path = 'path_to_your_file/messy_sales_and_revenue_analysis.csv'
+# Load the dataset
+file_path = "/content/bank_customers_data.csv"
 df = pd.read_csv(file_path)
 
-# 1. Handling Missing Values
-# Fill missing numerical values with the median or drop rows
+# Display initial data info
+print("Initial Data Info:")
+print(df.info())
 
-df['Quantity_Sold'] = pd.to_numeric(df['Quantity_Sold'], errors='coerce')
-df['Price_per_Unit'] = pd.to_numeric(df['Price_per_Unit'], errors='coerce')
-df['Quantity_Sold'].fillna(df['Quantity_Sold'].median(), inplace=True)
-df['Price_per_Unit'].fillna(df['Price_per_Unit'].median(), inplace=True)
+# Handling missing values
+# Fill missing values for numeric columns with the median
+df.fillna(df.median(), inplace=True)
 
-# Fill missing categorical values with mode or 'Unknown'
+# Detecting and handling outliers
+# Define a function to identify outliers using the IQR method
+def detect_outliers(df, column):
+    Q1 = df[column].quantile(0.25)
+    Q3 = df[column].quantile(0.75)
+    IQR = Q3 - Q1
+    lower_bound = Q1 - 1.5 * IQR
+    upper_bound = Q3 + 1.5 * IQR
+    return df[(df[column] < lower_bound) | (df[column] > upper_bound)]
 
-df['Region'].fillna('Unknown', inplace=True)
-df['Sales_Rep'].fillna('Unknown', inplace=True)
+# Replace outliers with the median value
+for column in ["Income", "Credit_Score", "Account_Balance", "Loan_Amount"]:
+    outliers = detect_outliers(df, column)
+    if not outliers.empty:
+        median_value = df[column].median()
+        df.loc[outliers.index, column] = median_value
 
-# 2. Standardizing Date Formats
-# Convert inconsistent date formats to a consistent format
+# Display cleaned data info
+print("\nCleaned Data Info:")
+print(df.info())
 
-df['Date'] = pd.to_datetime(df['Date'], errors='coerce')
-df['Date'].fillna(method='ffill', inplace=True)
-
-# 3. Correcting Data Types
-# Convert numeric columns to the correct data type
-
-df['Total_Revenue'] = df['Quantity_Sold'] * df['Price_per_Unit']
-df['Total_Cost'] = df['Quantity_Sold'] * df['Cost_per_Unit']
-df['Profit'] = df['Total_Revenue'] - df['Total_Cost']
-
-# 4. Removing Duplicates
-# Remove duplicate rows
-
-df.drop_duplicates(inplace=True)
-
-# 5. Fixing Outliers and Inconsistent Data
-# Remove outliers by defining a reasonable range for price and quantity
-
-df = df[(df['Quantity_Sold'] >= 0) & (df['Quantity_Sold'] <= 100)]
-df = df[(df['Price_per_Unit'] >= 0) & (df['Price_per_Unit'] <= 5000)]
-
-# 6. Correcting Typos
-# Standardize text formats and correct typos
-
-df['Product_Name'] = df['Product_Name'].str.strip().str.title()
-df['Category'] = df['Category'].str.strip().str.replace("3", "e").str.title()
-
-# Final clean-up and save the cleaned dataset
-
-cleaned_file_path = 'path_to_save_cleaned_dataset/cleaned_sales_and_revenue_analysis.csv'
+# Save the cleaned DataFrame to a new CSV file
+cleaned_file_path = "/content/Untitled Folder.csv"
 df.to_csv(cleaned_file_path, index=False)
 
-print("Data cleansing complete. Cleaned dataset saved to:", cleaned_file_path)
+print(f"\nCleaned dataset saved to {cleaned_file_path}")                                                                    
