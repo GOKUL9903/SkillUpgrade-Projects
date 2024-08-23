@@ -53,3 +53,41 @@ sns.pairplot(df[['Age', 'Income', 'Credit_Score', 'Loan_Amount']], diag_kind='kd
 plt.suptitle('Pairplot of Selected Features', y=1.02)
 plt.show()
 
+
+OUTPUT:
+
+Descriptive Statistics:
+
+Age:
+Mean: 36.68
+Median: 37.00
+Mode: 37.00
+Standard Deviation: 10.39
+
+Income:
+Mean: 49683.18
+Median: 50076.00
+Mode: 50076.00
+Standard Deviation: 9018.29
+
+Credit_Score:
+Mean: 693.88
+Median: 698.00
+Mode: 698.00
+Standard Deviation: 42.49
+
+Account_Balance:
+Mean: 20650.18
+Median: 21712.00
+Mode: 21712.00
+Standard Deviation: 6283.83
+
+Loan_Amount:
+Mean: 15272.38
+Median: 16515.00
+Mode: 16515.00
+Standard Deviation: 5873.08
+Descriptive Statistics:
+
+
+
